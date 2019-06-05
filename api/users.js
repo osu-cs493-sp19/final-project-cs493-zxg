@@ -1,7 +1,8 @@
+
 const router = require('express').Router();
 
 const { validateAgainstSchema } = require('../lib/validation');
-const { generateAuthToken, requireAuthentication, requireAdministration } = require('../lib/auth');
+const { generateAuthToken,   requireAdministration } = require('../lib/auth');
 const {
   UserSchema
 } = require('../models/user');
@@ -11,7 +12,7 @@ const {
  */
  router.post('/', requireAdministration, async(req,res,next) => {
 
- }
+ });
 
 /*
  * Log in a User.
@@ -19,9 +20,9 @@ const {
 router.post('/login', async (req, res) => {
   if (req.body && req.body.email && req.body.password) {
     try {
-      const authenticated = await validateUser(req.body.email, req.body.password);
+      // const authenticated = await validateUser(req.body.email, req.body.password);
       if (authenticated) {
-        const token = generateAuthToken(req.body.email);
+        // const token = generateAuthToken(req.body.email);
         res.status(200).send({
           token: token
         });
@@ -45,11 +46,11 @@ router.post('/login', async (req, res) => {
 /*
  * Fetch data about a specific User.
  */
-router.get('/:id', requireAuthentication, async (req, res, next) => {
-  const userid = await ;
+router.get('/:id',   async (req, res, next) => {
+  // const userid = await ;
   if (req.params.id == userid.id || userid.role == 1) {
     try {
-      const user = await ;
+      // const user = await ;
       if (user) {
         res.status(200).send(user);
       } else {

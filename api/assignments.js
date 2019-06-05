@@ -12,10 +12,10 @@ const {
  */
 router.post('/', requireAuthentication, async (req, res) => {
   if (validateAgainstSchema(req.body, AssignmentsSchema)) {
-    const userid = await ;
-    if(useid相符){
+    // const userid = await ;
+    if(useid ){
       try{
-        const id = await ;
+        // const id = await ;
         res.status(201).send({
           id: id
         });
@@ -35,14 +35,14 @@ router.post('/', requireAuthentication, async (req, res) => {
       error: "The request body was either not present or did not contain a valid Assignment object."
     });
   }
-}
+});
 
 /*
  * Fetch data about a specific Assignment.
  */
 router.get('/:id', async (req, res, next) => {
   try {
-    const assignment = await ;
+    // const assignment = await ;
     if (assignment) {
       res.status(200).send(assignment);
     } else {
@@ -56,17 +56,17 @@ router.get('/:id', async (req, res, next) => {
       error: "Unable to fetch assignment.  Please try again later."
     });
   }
-}
+});
 
 /*
  * Update data for a specific Assignment.
  */
  router.put('/:id', requireAuthentication, async (req, res, next) => {
    if(validateAgainstSchema(req.body, AssignmentsSchema)){
-     const userid = await ;
-     if(useid相符){
+     // const userid = await ;
+     if(useid ){
        try {
-         const id = await ;
+         // const id = await ;
          if (assignment) {
            res.status(200).send({
              id: id,
@@ -92,16 +92,16 @@ router.get('/:id', async (req, res, next) => {
        error: "The request body was either not present or did not contain the fields described above."
      });
    }
- }
+ });
 
 /*
  * Remove a specific Assignment from the database.
  */
   router.delete('/:id', requireAuthentication, async (req, res, next) => {
-    const userid = await ;
-    if(useid相符){
+    // const userid = await ;
+    if(useid ){
       try {
-        const deleteSuccessful = await ;
+        // const deleteSuccessful = await ;
         if (deleteSuccessful) {
           res.status(204).end();
         } else {
@@ -120,16 +120,16 @@ router.get('/:id', async (req, res, next) => {
         error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
       });
     }
-  }
+  });
 
 /*
  * Fetch the list of all Submissions for an Assignment.
  */
  router.get('/:id/submissions', requireAuthentication, async (req, res, next) => {
-   const userid = await ;
-   if(useid相符){
+   // const userid = await ;
+   if(useid ){
      try {
-       const submissions = await ;
+       // const submissions = await ;
        if (submissions) {
          res.status(200).send(submissions);
        } else {
@@ -148,17 +148,17 @@ router.get('/:id', async (req, res, next) => {
         error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
       });
    }
- }
+ });
 
 /*
  * Create a new Submission for an Assignment.
  */
 router.post('/:id/submissions', requireAuthentication, async (req, res, next) => {
   if (validateAgainstSchema(req.body, SubmissionSchema)) {
-    const userid = await ;
-    if(useid相符){
+    // const userid = await ;
+    if(useid ){
       try {
-        const id = await ;
+        // const id = await ;
         if(submission) {
           res.status(201).send({
             id: id
@@ -184,6 +184,6 @@ router.post('/:id/submissions', requireAuthentication, async (req, res, next) =>
       error: "The request body was either not present or did not contain a valid Submission object."
     });
   }
-}
+});
 
 module.exports = router;

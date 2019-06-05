@@ -24,10 +24,10 @@ router.get('/', async (req, res) => {
 /*
  * Route to create a new business.
  */
-router.post('/',requireAuthentication, async (req, res) => {
+router.post('/', async (req, res) => {
   if (validateAgainstSchema(req.body, CoursesSchema)) {
-    const userid = await ;
-    if(useid相符){
+    // const userid = await ;
+    if(useid ){
       try {
 
 
@@ -54,7 +54,7 @@ router.post('/',requireAuthentication, async (req, res) => {
  */
  router.get('/:id', async (req, res, next) => {
    try {
-     const course = await ;
+     // const course = await ;
      if (course) {
        res.status(200).send(course);
      } else {
@@ -73,13 +73,13 @@ router.post('/',requireAuthentication, async (req, res) => {
 /*
  * Update data for a specific Course.
  */
-  router.put('/:id', requireAuthentication, async (req, res, next) => {
+  router.put('/:id',  async (req, res, next) => {
     try {
-      const course = await ;
+      // const course = await ;
       if (course) {
         if (validateAgainstSchema(req.body, CoursesSchema)) {
-          const userid = await ;
-          if(useid相符){
+          // const userid = await ;
+          if(useid ){
             try {
 
             } catch (err) {
@@ -114,11 +114,11 @@ router.post('/',requireAuthentication, async (req, res) => {
 /*
  * Remove a specific Course from the database.
  */
- router.delete('/:id', requireAuthentication, async (req, res, next) => {
-   const userid = await ;
-   if(useid相符){
+ router.delete('/:id',  async (req, res, next) => {
+   // const userid = await ;
+   if(useid ){
      try {
-       const deleteSuccessful = await ;
+       // const deleteSuccessful = await ;
        if (deleteSuccessful) {
          res.status(204).end();
        } else {
@@ -137,16 +137,16 @@ router.post('/',requireAuthentication, async (req, res) => {
         error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
       });
     }
- }
+ });
 
  /*
   * Fetch a list of the students enrolled in the Course.
   */
-  router.get('/:id/students', requireAuthentication, async (req, res, next) => {
-    const userid = await ;
-    if(useid相符){
+  router.get('/:id/students',  async (req, res, next) => {
+    // const userid = await ;
+    if(useid ){
       try {
-        const studentList = await ;
+        // const studentList = await ;
         if (studentList){
           res.status(200).send(studentList);
         } else {
@@ -165,17 +165,17 @@ router.post('/',requireAuthentication, async (req, res) => {
         error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
       });
     }
-  }
+  });
 
 /*
  * Update enrollment for a Course
  */
- router.post('/:id/students', requireAuthentication, async (req, res, next) => {
+ router.post('/:id/students',  async (req, res, next) => {
    if(validateAgainstSchema(req.body, )){
-     const userid = await ;
-     if(useid相符){
+     // const userid = await ;
+     if(useid ){
        try {
-         const addStudentToCourse = await ;
+         // const addStudentToCourse = await ;
          if(addStudentToCourse){
            res.status(200).send(addStudentToCourse);
          } else {
@@ -199,16 +199,16 @@ router.post('/',requireAuthentication, async (req, res) => {
        error: "The request body was either not present or did not contain the fields described above."
      });
    }
- }
+ });
 
 /*
 * Fetch a CSV file containing list of the students enrolled in the Course.
 */
-router.get('/:id/roster', requireAuthentication, async (req, res, next) => {
-  const userid = await ;
-  if(useid相符){
+router.get('/:id/roster',  async (req, res, next) => {
+  // const userid = await ;
+  if(useid ){
     try{
-      const getRosterById = await ;
+      // const getRosterById = await ;
       if (getRosterById) {
         res.status(200).send(getRosterById);
       } else {
@@ -227,14 +227,14 @@ router.get('/:id/roster', requireAuthentication, async (req, res, next) => {
         error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
     });
   }
-}
+});
 
 /*
  * Fetch a list of the Assignments for the Course.
  */
 router.get('/:id/assignments', async (req, res, next) => {
   try {
-    const assignments = await ;
+    // const assignments = await ;
     if (assignment) {
 
     } else {
@@ -248,6 +248,6 @@ router.get('/:id/assignments', async (req, res, next) => {
       error: "Unable to fetch course.  Please try again later."
     });
   }
-}
+});
 
 module.exports = router;
