@@ -274,7 +274,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-    patch:
+    put:
       summary: Update data for a specific Course.
       description: >
         Performs a partial update on the data for the Course.  Note that enrolled students and assignments cannot be modified via this endpoint.  Only an authenticated User with 'admin' role or an authenticated 'instructor' User whose ID matches the `instructorId` of the Course can update Course information.
