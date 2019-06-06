@@ -8,8 +8,14 @@ const {
   getCoursesPage,
   getCourseById,
   updateCourseById,
-  insertNewCourse
+  insertNewCourse,
+  deleteCourseById
 } = require('../models/course');
+
+const {
+  getStudentsPage,
+  getStudentsbyId
+} = require('../models/student');
 
 /*
  * Route to return a paginated list of courses.
@@ -84,16 +90,16 @@ router.post('/', async (req, res) => {
  */
   router.put('/:id',  async (req, res, next) => {
     try {
-      const updatecourse = await updateCourseById(parseInt(req.params.id), req.body);
+      const updatecourse = await updateCourseById(req.params.id, req.body);
       console.log(updatecourse);
       if (updatecourse) {
         if (validateAgainstSchema(req.body, CoursesSchema)) {
           // const userid = await ;
           const userid = 1;
-          if(useid == 1){
+          if(userid == 1){
             try {
               res.status(200).send({
-                id: id
+                updated: updatecourse
               });
             } catch (err) {
               console.error(err);
@@ -129,10 +135,13 @@ router.post('/', async (req, res) => {
  */
  router.delete('/:id',  async (req, res, next) => {
    // const userid = await ;
-   if(useid ){
+   const userid =  1;
+   if(userid == 1 ){
      try {
-       // const deleteSuccessful = await ;
+       const deleteSuccessful = await deleteCourseById(req.params.id);
+
        if (deleteSuccessful) {
+         console.log("Delete successful");
          res.status(204).end();
        } else {
          res.status(404).send({
@@ -152,14 +161,30 @@ router.post('/', async (req, res) => {
     }
  });
 
+//get all students course information
+    //sth error, or delete this function later
+ router.get('/studentslist', async (req, res) => {
+   try {
+     const studentspage = await getStudentsPage(parseInt(req.query.page) || 1);
+     res.status(200).send(studentspage);
+   } catch (err) {
+   console.error(err);
+   res.status(500).send({
+     error: "Error fetching students list.  Please try again later."
+   });
+ }
+});
+
  /*
   * Fetch a list of the students enrolled in the Course.
   */
   router.get('/:id/students',  async (req, res, next) => {
     // const userid = await ;
-    if(useid ){
+    const userid = 1;
+    if(useid = 1 ){
       try {
-        // const studentList = await ;
+        const studentList = await getStudentsbyId(req.params.id);
+        console.log("T or F", studentList)
         if (studentList){
           res.status(200).send(studentList);
         } else {
