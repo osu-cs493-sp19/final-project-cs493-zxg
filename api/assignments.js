@@ -4,20 +4,27 @@ const { validateAgainstSchema } = require('../lib/validation');
 const { generateAuthToken, requireAuthentication } = require('../lib/auth');
 const {
   AssignmentsSchema,
-  SubmissionSchema
+  SubmissionSchema,
+  insertNewAssignment,
+  getAssignmentById,
+  updateAssignmentById,
+  deleteAssignmentById
 } = require('../models/assignment');
 
 /*
  * Create a new Assignment.
  */
-router.post('/', requireAuthentication, async (req, res) => {
+router.post('/',  async (req, res) => {
   if (validateAgainstSchema(req.body, AssignmentsSchema)) {
-    // const userid = await ;
-    if(useid ){
+    const userid = 1 ;
+    if(userid == 1){
       try{
-        // const id = await ;
+        const id = await insertNewAssignment(req.body);
         res.status(201).send({
-          id: id
+          id: id,
+          links: {
+            assignment: `/assignments/${id}`
+          }
         });
       } catch (err) {
         console.error(err);
@@ -42,7 +49,7 @@ router.post('/', requireAuthentication, async (req, res) => {
  */
 router.get('/:id', async (req, res, next) => {
   try {
-    // const assignment = await ;
+    const assignment = await getAssignmentById(req.params.id);
     if (assignment) {
       res.status(200).send(assignment);
     } else {
@@ -61,15 +68,17 @@ router.get('/:id', async (req, res, next) => {
 /*
  * Update data for a specific Assignment.
  */
- router.put('/:id', requireAuthentication, async (req, res, next) => {
+ router.put('/:id',  async (req, res, next) => {
    if(validateAgainstSchema(req.body, AssignmentsSchema)){
-     // const userid = await ;
-     if(useid ){
+     const userid = 1;
+     if(userid == 1){
        try {
-         // const id = await ;
+         const assignment = await updateAssignmentById(req.params.id, req.body);
          if (assignment) {
            res.status(200).send({
-             id: id,
+             links:{
+               assignment: `/assignments/${req.params.id}`
+             }
            });
          } else {
            res.status(404).send({
@@ -97,11 +106,11 @@ router.get('/:id', async (req, res, next) => {
 /*
  * Remove a specific Assignment from the database.
  */
-  router.delete('/:id', requireAuthentication, async (req, res, next) => {
-    // const userid = await ;
-    if(useid ){
+  router.delete('/:id',  async (req, res, next) => {
+    const userid = 1 ;
+    if(userid==1 ){
       try {
-        // const deleteSuccessful = await ;
+        const deleteSuccessful = await deleteAssignmentById(req.params.id);
         if (deleteSuccessful) {
           res.status(204).end();
         } else {
@@ -127,7 +136,7 @@ router.get('/:id', async (req, res, next) => {
  */
  router.get('/:id/submissions', requireAuthentication, async (req, res, next) => {
    // const userid = await ;
-   if(useid ){
+   if(userid ){
      try {
        // const submissions = await ;
        if (submissions) {
@@ -156,7 +165,7 @@ router.get('/:id', async (req, res, next) => {
 router.post('/:id/submissions', requireAuthentication, async (req, res, next) => {
   if (validateAgainstSchema(req.body, SubmissionSchema)) {
     // const userid = await ;
-    if(useid ){
+    if(userid ){
       try {
         // const id = await ;
         if(submission) {

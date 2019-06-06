@@ -89,43 +89,36 @@ router.post('/', async (req, res) => {
  * Update data for a specific Course.
  */
   router.put('/:id',  async (req, res, next) => {
-    try {
-      const updatecourse = await updateCourseById(req.params.id, req.body);
-      console.log(updatecourse);
-      if (updatecourse) {
-        if (validateAgainstSchema(req.body, CoursesSchema)) {
-          // const userid = await ;
-          const userid = 1;
-          if(userid == 1){
-            try {
-              res.status(200).send({
-                updated: updatecourse
-              });
-            } catch (err) {
-              console.error(err);
-              res.status(500).send({
-                error: "Unable to update specified course.  Please try again later."
-              });
-            }
+    if (validateAgainstSchema(req.body, CoursesSchema)) {
+      // const userid = await ;
+      const userid = 1;
+      if(userid == 1){
+        try {
+          const updatecourse = await updateCourseById(req.params.id, req.body);
+          console.log(updatecourse);
+          if (updatecourse) {
+            res.status(200).send({
+              updated: updatecourse
+            });
           } else {
-            res.status(403).send({
-              error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
+            res.status(404).send({
+              error: "Specified Course `id` not found."
             });
           }
-        } else {
-          res.status(400).send({
-            error: "The request body was either not present or did not contain a valid Course object."
+        } catch (err) {
+          console.error(err);
+          res.status(500).send({
+            error: "Unable to update specified course.  Please try again later."
           });
         }
       } else {
-        res.status(404).send({
-          error: "Specified Course `id` not found."
+        res.status(403).send({
+          error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
         });
       }
-    } catch (err) {
-      console.error(err);
-      res.status(500).send({
-        error: "Unable to fetch course.  Please try again later."
+    } else {
+      res.status(400).send({
+        error: "The request body was either not present or did not contain a valid Course object."
       });
     }
   });
