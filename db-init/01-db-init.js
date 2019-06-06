@@ -3,63 +3,63 @@ var user1 = {
   "name": "Admin",
   "email": "admin@qq.com",
   "password": "hunter2",
-  "role": "0"
+  "role": 0
 }
 
 var user2 = {
   "name": "student1",
   "email": "st1@qq.com",
   "password": "hunter2",
-  "role": "1"
+  "role": 1
 }
 
 var user3 = {
   "name": "student3",
   "email": "st3@qq.com",
   "password": "hunter2",
-  "role": "1"
+  "role": 1
 }
 
 var user4 = {
   "name": "student4",
   "email": "st4@qq.com",
   "password": "hunter2",
-  "role": "1"
+  "role": 1
 }
 
 var user5 = {
   "name": "student5",
   "email": "st5@qq.com",
   "password": "hunter2",
-  "role": "1"
+  "role": 1
 }
 
 var user6 = {
   "name": "student6",
   "email": "st6@qq.com",
   "password": "hunter2",
-  "role": "1"
+  "role": 1
 }
 
 var user7 = {
   "name": "instructor1",
   "email": "in1@qq.com",
   "password": "hunter2",
-  "role": "2"
+  "role": 2
 }
 
 var user8 = {
   "name": "instructor2",
   "email": "in2@qq.com",
   "password": "hunter2",
-  "role": "2"
+  "role": 2
 }
 
 var user9 = {
   "name": "instructor3",
   "email": "in3@qq.com",
   "password": "hunter2",
-  "role": "2"
+  "role": 2
 }
 
 db.users.save(user1);
@@ -312,7 +312,7 @@ var assignment1 = {
     "&id": course1._id
   },
   "title": "assignment1",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
@@ -322,7 +322,7 @@ var assignment2 = {
     "&id": course2._id
   },
   "title": "assignment2",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
@@ -332,7 +332,7 @@ var assignment3 = {
     "&id": course3._id
   },
   "title": "assignment3",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
@@ -342,7 +342,7 @@ var assignment4 = {
     "&id": course4._id
   },
   "title": "assignment4",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
@@ -352,7 +352,7 @@ var assignment5 = {
     "&id": course5._id
   },
   "title": "assignment5",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
@@ -362,7 +362,7 @@ var assignment6 = {
     "&id": course6._id
   },
   "title": "assignment6",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
@@ -372,7 +372,7 @@ var assignment7 = {
     "&id": course7._id
   },
   "title": "assignment7",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
@@ -382,7 +382,7 @@ var assignment8 = {
     "&id": course8._id
   },
   "title": "assignment8",
-  "points": "10",
+  "points": 10,
   "due": "no due"
 }
 
