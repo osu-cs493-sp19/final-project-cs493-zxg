@@ -1,4 +1,6 @@
-const { ObjectId } = require('mongodb');
+
+const fs = require('fs');
+const { ObjectId, GridFSBucket } = require('mongodb');
 
 const { getDBReference } = require('../lib/mongo');
 const { extractValidFields } = require('../lib/validation');
@@ -80,3 +82,51 @@ async function deleteAssignmentById(id) {
   return result.deletedCount > 0;
 }
 exports.deleteAssignmentById = deleteAssignmentById;
+
+exports.saveSubmissionFile = function (id, submission) {
+  return new Promise((resolve, reject) => {
+    const db = getDBReference();
+    const bucket = new GridFSBucket(db, { bucketName: 'submissions' });
+
+    const metadata = {
+      contentType: submission.contentType,
+      studentId: submission.studentId,
+      assignmentId: id,
+      url:`/assignments/submissions/${submission.filename}`
+    };
+
+    const uploadStream = bucket.openUploadStream(
+      submission.filename,
+      { metadata: metadata }
+    );
+
+    fs.createReadStream(submission.path)
+      .pipe(uploadStream)
+      .on('error', (err) => {
+        reject(err);
+      })
+      .on('finish', (result) => {
+        resolve(result._id);
+      });
+  });
+};
+
+exports.getDownloadStreamByFilename = function (filename) {
+  const db = getDBReference();
+  const bucket = new GridFSBucket(db, { bucketName: 'submissions' });
+  return bucket.openDownloadStreamByName(filename);
+};
+
+async function getSubmissionsByAssignmentId(id) {
+  const db = getDBReference();
+  const bucket = new GridFSBucket(db, { bucketName: 'submissions' });
+  if (!ObjectId.isValid(id)) {
+    return [];
+  } else {
+    const results = await bucket
+      .find({ 'metadata.assignmentId': id })
+      .toArray();
+    return results;
+  }
+}
+exports.getSubmissionsByAssignmentId = getSubmissionsByAssignmentId;

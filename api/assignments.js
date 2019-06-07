@@ -1,4 +1,7 @@
 const router = require('express').Router();
+const multer = require('multer');
+const crypto = require('crypto');
+const fs = require('fs');
 
 const { validateAgainstSchema } = require('../lib/validation');
 const { generateAuthToken, requireAuthentication } = require('../lib/auth');
@@ -8,7 +11,10 @@ const {
   insertNewAssignment,
   getAssignmentById,
   updateAssignmentById,
-  deleteAssignmentById
+  deleteAssignmentById,
+  saveSubmissionFile,
+  getDownloadStreamByFilename,
+  getSubmissionsByAssignmentId
 } = require('../models/assignment');
 
 /*
@@ -134,11 +140,11 @@ router.get('/:id', async (req, res, next) => {
 /*
  * Fetch the list of all Submissions for an Assignment.
  */
- router.get('/:id/submissions', requireAuthentication, async (req, res, next) => {
-   // const userid = await ;
-   if(userid ){
+ router.get('/:id/submissions',  async (req, res, next) => {
+   const userid = 1;
+   if( userid==1 ){
      try {
-       // const submissions = await ;
+       const submissions = await getSubmissionsByAssignmentId(req.params.id);
        if (submissions) {
          res.status(200).send(submissions);
        } else {
@@ -162,15 +168,59 @@ router.get('/:id', async (req, res, next) => {
 /*
  * Create a new Submission for an Assignment.
  */
-router.post('/:id/submissions', requireAuthentication, async (req, res, next) => {
-  if (validateAgainstSchema(req.body, SubmissionSchema)) {
-    // const userid = await ;
-    if(userid ){
+ const submissionTypes = {
+   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+   'application/pdf': 'pdf'
+ };
+ const upload = multer({
+   storage: multer.diskStorage({
+     destination: `${__dirname}/uploads`,
+     filename: (req, file, callback) => {
+       const basename = crypto.pseudoRandomBytes(16).toString('hex');
+       const extension = submissionTypes[file.mimetype];
+       callback(null, `${basename}.${extension}`);
+     }
+   }),
+   fileFilter: (req, file, callback) => {
+     //console.log(file.mimetype);
+     callback(null, !!submissionTypes[file.mimetype])
+   }
+ });
+
+
+function removeUploadedFile(file) {
+  return new Promise((resolve, reject) => {
+    fs.unlink(file.path, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
+router.post('/:id/submissions', upload.single('submission'), async (req, res, next) => {
+  console.log("== req.file:", req.file);
+  console.log("== req.body:", req.body);
+  if (req.file && req.body && req.body.studentId) {
+    const userid = 1 ;
+    if(userid==1){
       try {
-        // const id = await ;
-        if(submission) {
+        const submission = {
+          path: req.file.path,
+          filename: req.file.filename,
+          contentType: req.file.mimetype,
+          studentId: req.body.studentId
+        };
+        const id = await saveSubmissionFile(req.params.id, submission);
+        await removeUploadedFile(req.file);
+        if(id) {
           res.status(201).send({
-            id: id
+            id: id,
+            links: {
+              submissions:`/assignments/submissions/${submission.filename}`
+            }
           });
         } else {
           res.status(404).send({
@@ -180,7 +230,7 @@ router.post('/:id/submissions', requireAuthentication, async (req, res, next) =>
       } catch (err) {
         console.error(err);
         res.status(500).send({
-          error: "Unable to delete assignment.  Please try again later."
+          error: "Unable to post submission.  Please try again later."
         });
       }
     } else {
@@ -193,6 +243,21 @@ router.post('/:id/submissions', requireAuthentication, async (req, res, next) =>
       error: "The request body was either not present or did not contain a valid Submission object."
     });
   }
+});
+
+router.get('/submissions/:filename', (req, res, next) => {
+  getDownloadStreamByFilename(req.params.filename)
+    .on('error', (err) => {
+      if (err.code === 'ENOENT') {
+        next();
+      } else {
+        next(err);
+      }
+    })
+    .on('file', (file) => {
+      res.status(200).type(file.metadata.contentType);
+    })
+    .pipe(res);
 });
 
 module.exports = router;
