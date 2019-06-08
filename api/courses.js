@@ -17,11 +17,12 @@ const {
   getStudentsPage,
   getStudentsbyId,
   insertStudentbyId,
-  findStudentsInfo
+  findStudentsInfo,
+  getAssignmentsByCourseId
 } = require('../models/student');
 
 const {
-  getAssignmentsPage
+  getAssignmentsPage,
 } = require('../models/assignment')
 
 
@@ -280,7 +281,7 @@ router.get('/:id/roster',  async (req, res, next) => {
 router.get('/assignments/list', async (req, res) => {
   try {
     const assignmentspage = await getAssignmentsPage(parseInt(req.query.page) || 1);
-    res.status(200).send(assignmentpage);
+    res.status(200).send(assignmentspage);
   } catch (err) {
   console.error(err);
   res.status(500).send({
@@ -296,9 +297,10 @@ router.get('/assignments/list', async (req, res) => {
  */
 router.get('/:id/assignments', async (req, res, next) => {
   try {
-    // const assignments = await ;
-    if (assignment) {
-
+    const assignments = await getAssignmentsByCourseId(req.params.id);
+    console.log("aaaaaaaaaaa ", assignments);
+    if (assignments) {
+      res.status(200).send(assignments);
     } else {
       res.status(404).send({
         error: "Specified Course `id` not found."
