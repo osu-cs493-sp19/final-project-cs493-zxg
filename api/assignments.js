@@ -19,10 +19,11 @@ const {
 const { getUserByEmail } = require('../models/user');
 /*
  * Create a new Assignment.
- {
+http://localhost:8000/assignments
+{
  "courseId": {
         "$ref": "courses",
-        "$id": "5cf985663012ad6dccce1bef"
+        "$id": " "
     },
  "title": "assignment 04",
  "points": "10",
@@ -163,8 +164,9 @@ router.get('/:id', async (req, res, next) => {
    const userid = await getUserByEmail(req.user);
    if( userid.role == 2 || userid.role == 0 ){
      try {
-       const submissions = await getSubmissionsByAssignmentId(req.params.id);
-       if (submissions) {
+       const assignment = await getAssignmentById(req.params.id);
+       if (assignment) {
+         const submissions = await getSubmissionsByAssignmentId(req.params.id);
          res.status(200).send(submissions);
        } else {
          res.status(404).send({
@@ -232,9 +234,10 @@ router.post('/:id/submissions',requireAuthentication, upload.single('submission'
           contentType: req.file.mimetype,
           studentId: req.body.studentId
         };
-        const id = await saveSubmissionFile(req.params.id, submission);
-        await removeUploadedFile(req.file);
-        if(id) {
+        const assignment = await getAssignmentById(req.params.id);
+        if(assignment) {
+          const id = await saveSubmissionFile(req.params.id, submission);
+          await removeUploadedFile(req.file);
           res.status(201).send({
             id: id,
             links: {

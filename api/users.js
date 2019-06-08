@@ -65,13 +65,28 @@ router.get('/:id', requireAuthentication, async (req, res, next) => {
   "role": 1
  }
  */
-router.post('/', async(req,res,next) => {
+router.post('/', requireAdministration, async(req,res,next) => {
   if (validateAgainstSchema(req.body, UserSchema)) {
     try {
-      const id = await insertNewUser(req.body);
-      res.status(201).send({
-        id: id
-      });
+      if(req.body.role == 1 || req.body.role == 2 || typeof req.body.role === 'undefined'){
+        const id = await insertNewUser(req.body);
+        res.status(201).send({
+          _id: id
+        });
+      } else if(req.body.role == 0){
+        const userid = await getUserByEmail(req.user);
+        if(typeof userid === 'undefined' || userid.role == 1 || req.body.role == 2 ){
+          res.status(401).send({
+            error: "Invalid authentication token provided, only admin user can create another admin"
+          });
+        } else {
+          const id = await insertNewUser(req.body);
+          console.log("id is---------------------: ", id);
+          res.status(201).send({
+            _id: id
+          });
+        }
+      }
     } catch (err) {
       console.error(err);
       res.status(500).send({
