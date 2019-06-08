@@ -24,7 +24,8 @@ const {
 const {
   getAssignmentsPage,
 } = require('../models/assignment')
-
+  
+const { getUserByEmail } = require('../models/user');
 
 /*
  * Route to return a paginated list of courses.
@@ -42,17 +43,31 @@ router.get('/', async (req, res) => {
 });
 
 /*
- * Route to create a new business.
+ * Route to create a new course.
+ {
+    "subject": "Computer Science",
+    "number": "101",
+    "title": "COMPUTERS: APPS & IMPLICATIONS",
+    "term": "Fall 2019",
+    "instructorId": {
+        "$ref": "users",
+        "$id": " ",
+        "$db": ""
+    }
+}
  */
-router.post('/', async (req, res) => {
+router.post('/', requireAuthentication, async (req, res) => {
   if (validateAgainstSchema(req.body, CoursesSchema)) {
-    // const userid = await ;
-    const userid = 1;
-    if(userid == 1){
+    const userid = await getUserByEmail(req.user);
+    console.log(req.body.instructorId.$id);
+    if((userid._id == req.body.instructorId.$id && userid.role == 2) || userid.role == 0){
       try {
         const id = await insertNewCourse(req.body);
         res.status(201).send({
-          id: id
+          id: id,
+          links:{
+            course:`/courses/${id}`
+          }
         });
 
       } catch (err) {
@@ -97,12 +112,10 @@ router.post('/', async (req, res) => {
 /*
  * Update data for a specific Course.
  */
-
-  router.put('/:id',  async (req, res, next) => {
+  router.put('/:id', requireAuthentication,  async (req, res, next) => {
     if (validateAgainstSchema(req.body, CoursesSchema)) {
-      // const userid = await ;
-      const userid = 1;
-      if(userid == 1){
+      const userid = await getUserByEmail(req.user);
+      if((userid._id == req.body.instructorId.$id && userid.role == 2) || userid.role == 0){
         try {
           const updatecourse = await updateCourseById(req.params.id, req.body);
           console.log(updatecourse);
@@ -137,10 +150,10 @@ router.post('/', async (req, res) => {
 /*
  * Remove a specific Course from the database.
  */
- router.delete('/:id',  async (req, res, next) => {
+ router.delete('/:id', requireAuthentication,  async (req, res, next) => {
    // const userid = await ;
-   const userid =  1;
-   if(userid == 1 ){
+   const userid = await getUserByEmail(req.user);
+   if(userid._id == req.body.instructorId.$id || userid.role == 0){
      try {
        const deleteSuccessful = await deleteCourseById(req.params.id);
 
@@ -182,10 +195,9 @@ router.post('/', async (req, res) => {
  /*
   * Fetch a list of the students enrolled in the Course.
   */
-router.get('/:id/students',  async (req, res, next) => {
-  // const userid = await ;
-  const userid = 1;
-  if(useid = 1 ){
+router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
+  const user = await getUserByEmail(req.body.email);
+  if(userid.role == 2 || userid.role == 0){
     try {
       const studentList = await getStudentsbyId(req.params.id);
       if (studentList){
@@ -213,11 +225,10 @@ router.get('/:id/students',  async (req, res, next) => {
  */
 
  // error here
- router.post('/:id/students',  async (req, res, next) => {
+ router.post('/:id/students', requireAuthentication,  async (req, res, next) => {
    if(validateAgainstSchema(req.body, StudentSchema)){
-     // const userid = await ;
-     const userid = 1;
-     if(userid == 1){
+     const userid = await getUserByEmail(req.user);
+     if(user._id == req.body.studentId.$id || userid.role == 0){
        try {
         const addStudentToCourse = await insertStudentbyId(req.params.id, req.body);
         console.log(addStudentToCourse);
@@ -250,9 +261,8 @@ router.get('/:id/students',  async (req, res, next) => {
 * Fetch a CSV file containing list of the students enrolled in the Course.
 */
 router.get('/:id/roster',  async (req, res, next) => {
-  // const userid = await ;
-  const userid = 1;
-  if(userid == 1 ){
+  const userid = await getUserByEmail(req.user);
+  if(uuserid.role == 2 || userid.role == 0){
     try{
       const getRosterById = await findStudentsInfo(req.params.id);
     //  console.log("gettttttttttttttttttt", getRosterById);

@@ -16,14 +16,24 @@ const {
   getDownloadStreamByFilename,
   getSubmissionsByAssignmentId
 } = require('../models/assignment');
-
+const { getUserByEmail } = require('../models/user');
 /*
  * Create a new Assignment.
+ {
+ "courseId": {
+        "$ref": "courses",
+        "$id": "5cf985663012ad6dccce1bef"
+    },
+ "title": "assignment 04",
+ "points": "10",
+ "due": "none"
+}
  */
-router.post('/',  async (req, res) => {
+
+router.post('/', requireAuthentication,  async (req, res) => {
   if (validateAgainstSchema(req.body, AssignmentsSchema)) {
-    const userid = 1 ;
-    if(userid == 1){
+    const userid = await getUserByEmail(req.user);
+    if(userid.role == 2 || userid.role == 0){
       try{
         const id = await insertNewAssignment(req.body);
         res.status(201).send({
@@ -73,11 +83,20 @@ router.get('/:id', async (req, res, next) => {
 
 /*
  * Update data for a specific Assignment.
+ {
+	"courseId": {
+        "$ref": "courses",
+        "$id": "5cf985663012ad6dccce1bef"
+    },
+	"title": "assignment 04",
+	"points": "10",
+	"due": "none"
+}
  */
  router.put('/:id',  async (req, res, next) => {
    if(validateAgainstSchema(req.body, AssignmentsSchema)){
-     const userid = 1;
-     if(userid == 1){
+     const userid = await getUserByEmail(req.user);
+     if( userid.role == 2 || userid.role == 0 ){
        try {
          const assignment = await updateAssignmentById(req.params.id, req.body);
          if (assignment) {
@@ -112,9 +131,9 @@ router.get('/:id', async (req, res, next) => {
 /*
  * Remove a specific Assignment from the database.
  */
-  router.delete('/:id',  async (req, res, next) => {
-    const userid = 1 ;
-    if(userid==1 ){
+  router.delete('/:id', requireAuthentication,  async (req, res, next) => {
+    const userid = await getUserByEmail(req.user);
+    if( userid.role == 2 || userid.role == 0 ){
       try {
         const deleteSuccessful = await deleteAssignmentById(req.params.id);
         if (deleteSuccessful) {
@@ -140,9 +159,9 @@ router.get('/:id', async (req, res, next) => {
 /*
  * Fetch the list of all Submissions for an Assignment.
  */
- router.get('/:id/submissions',  async (req, res, next) => {
-   const userid = 1;
-   if( userid==1 ){
+ router.get('/:id/submissions',requireAuthentication,  async (req, res, next) => {
+   const userid = await getUserByEmail(req.user);
+   if( userid.role == 2 || userid.role == 0 ){
      try {
        const submissions = await getSubmissionsByAssignmentId(req.params.id);
        if (submissions) {
@@ -200,12 +219,12 @@ function removeUploadedFile(file) {
   });
 }
 
-router.post('/:id/submissions', upload.single('submission'), async (req, res, next) => {
+router.post('/:id/submissions',requireAuthentication, upload.single('submission'), async (req, res, next) => {
   console.log("== req.file:", req.file);
   console.log("== req.body:", req.body);
   if (req.file && req.body && req.body.studentId) {
-    const userid = 1 ;
-    if(userid==1){
+    const userid = await getUserByEmail(req.user);
+    if( userid._id==req.body.studentId ){
       try {
         const submission = {
           path: req.file.path,

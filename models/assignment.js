@@ -169,4 +169,3 @@ async function getSubmissionsByAssignmentId(id) {
   }
 }
 exports.getSubmissionsByAssignmentId = getSubmissionsByAssignmentId;
-
