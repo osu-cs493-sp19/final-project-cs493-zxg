@@ -24,7 +24,7 @@ const {
 const {
   getAssignmentsPage,
 } = require('../models/assignment')
-  
+
 const { getUserByEmail } = require('../models/user');
 
 /*
@@ -196,7 +196,7 @@ router.post('/', requireAuthentication, async (req, res) => {
   * Fetch a list of the students enrolled in the Course.
   */
 router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
-  const user = await getUserByEmail(req.body.email);
+  const userid = await getUserByEmail(req.user);
   if(userid.role == 2 || userid.role == 0){
     try {
       const studentList = await getStudentsbyId(req.params.id);
@@ -260,9 +260,9 @@ router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
 /*
 * Fetch a CSV file containing list of the students enrolled in the Course.
 */
-router.get('/:id/roster',  async (req, res, next) => {
+router.get('/:id/roster', requireAuthentication,  async (req, res, next) => {
   const userid = await getUserByEmail(req.user);
-  if(uuserid.role == 2 || userid.role == 0){
+  if( userid.role == 2 || userid.role == 0 ){
     try{
       const getRosterById = await findStudentsInfo(req.params.id);
     //  console.log("gettttttttttttttttttt", getRosterById);
