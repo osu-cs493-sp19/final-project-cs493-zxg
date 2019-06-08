@@ -17,13 +17,14 @@ const {
   getStudentsPage,
   getStudentsbyId,
   insertStudentbyId,
-  findStudentsInfo
+  findStudentsInfo,
+  getAssignmentsByCourseId
 } = require('../models/student');
 
 const {
-  getAssignmentsPage
+  getAssignmentsPage,
 } = require('../models/assignment')
-
+  
 const { getUserByEmail } = require('../models/user');
 
 /*
@@ -111,7 +112,6 @@ router.post('/', requireAuthentication, async (req, res) => {
 /*
  * Update data for a specific Course.
  */
-
   router.put('/:id', requireAuthentication,  async (req, res, next) => {
     if (validateAgainstSchema(req.body, CoursesSchema)) {
       const userid = await getUserByEmail(req.user);
@@ -225,7 +225,7 @@ router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
  */
 
  // error here
- router.post('/:id/students',  async (req, res, next) => {
+ router.post('/:id/students', requireAuthentication,  async (req, res, next) => {
    if(validateAgainstSchema(req.body, StudentSchema)){
      const userid = await getUserByEmail(req.user);
      if(user._id == req.body.studentId.$id || userid.role == 0){
@@ -291,7 +291,7 @@ router.get('/:id/roster',  async (req, res, next) => {
 router.get('/assignments/list', async (req, res) => {
   try {
     const assignmentspage = await getAssignmentsPage(parseInt(req.query.page) || 1);
-    res.status(200).send(assignmentpage);
+    res.status(200).send(assignmentspage);
   } catch (err) {
   console.error(err);
   res.status(500).send({
@@ -307,9 +307,10 @@ router.get('/assignments/list', async (req, res) => {
  */
 router.get('/:id/assignments', async (req, res, next) => {
   try {
-    // const assignments = await ;
-    if (assignment) {
-
+    const assignments = await getAssignmentsByCourseId(req.params.id);
+    console.log("aaaaaaaaaaa ", assignments);
+    if (assignments) {
+      res.status(200).send(assignments);
     } else {
       res.status(404).send({
         error: "Specified Course `id` not found."

@@ -29,6 +29,7 @@ const { getUserByEmail } = require('../models/user');
  "due": "none"
 }
  */
+
 router.post('/', requireAuthentication,  async (req, res) => {
   if (validateAgainstSchema(req.body, AssignmentsSchema)) {
     const userid = await getUserByEmail(req.user);
@@ -92,7 +93,7 @@ router.get('/:id', async (req, res, next) => {
 	"due": "none"
 }
  */
- router.put('/:id', requireAuthentication, async (req, res, next) => {
+ router.put('/:id',  async (req, res, next) => {
    if(validateAgainstSchema(req.body, AssignmentsSchema)){
      const userid = await getUserByEmail(req.user);
      if( userid.role == 2 || userid.role == 0 ){

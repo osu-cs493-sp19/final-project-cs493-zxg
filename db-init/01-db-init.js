@@ -77,7 +77,7 @@ db.users.save(user9);
 var course1 = {
   "subject": "Computer Science",
   "number": "101",
-  "title": "COMPUTERS: APPS & IMPLICATIONS",
+  "title": "COMPUTERS: APPS  IMPLICATIONS",
   "term": "Fall 2019",
   "instructorId":{
     "$ref": "users",
@@ -309,7 +309,7 @@ db.students.save(student10);
 var assignment1 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course1._id
+    "$id": course1._id
   },
   "title": "assignment1",
   "points": 10,
@@ -319,7 +319,7 @@ var assignment1 = {
 var assignment2 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course2._id
+    "$id": course2._id
   },
   "title": "assignment2",
   "points": 10,
@@ -329,7 +329,7 @@ var assignment2 = {
 var assignment3 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course3._id
+    "$id": course3._id
   },
   "title": "assignment3",
   "points": 10,
@@ -339,7 +339,7 @@ var assignment3 = {
 var assignment4 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course4._id
+    "$id": course4._id
   },
   "title": "assignment4",
   "points": 10,
@@ -349,7 +349,7 @@ var assignment4 = {
 var assignment5 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course5._id
+    "$id": course5._id
   },
   "title": "assignment5",
   "points": 10,
@@ -359,7 +359,7 @@ var assignment5 = {
 var assignment6 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course6._id
+    "$id": course6._id
   },
   "title": "assignment6",
   "points": 10,
@@ -369,7 +369,7 @@ var assignment6 = {
 var assignment7 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course7._id
+    "$id": course7._id
   },
   "title": "assignment7",
   "points": 10,
@@ -379,7 +379,7 @@ var assignment7 = {
 var assignment8 = {
   "courseId": {
     "$ref": "courses",
-    "&id": course8._id
+    "$id": course8._id
   },
   "title": "assignment8",
   "points": 10,

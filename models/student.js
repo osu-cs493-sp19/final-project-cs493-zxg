@@ -1,3 +1,4 @@
+const { Parser } = require('json2csv');
 
 const { ObjectId } = require('mongodb');
 
@@ -70,19 +71,15 @@ exports.getStudentsbyId = async function(id){
   const db = getDBReference();
   const collection = db.collection('students');
   const findcourse = await getCourseById(id);
-  console.log(findcourse);
-    console.log("fincourse == null", findcourse);
-  if(findcourse == null){
-    console.log("error");
-    console.log("fincourse == null", findcourse);
 
+  if(findcourse == null){
     return null;
   } else {
     const result = await collection
       .find({'courseId.$id': new ObjectId(id)})
 // add this code later, do not delete      .project({'studentId.$id': new ObjectId()})
       .toArray();
-    console.log(result);
+
     return result;
   }
 }
@@ -117,12 +114,20 @@ exports.findStudentsInfo = async function (id){
       .toArray();
 
     var i;
-    var results = {};
+    var results = [];
     for( i = 0; i < students.length; i++){
       const user = await getUserById(students[i].studentId.oid);
       results[i] = user;
     }
-    return results;
+    //console.log(results);
+    //return results;
+
+    //jason to CSV
+    const fields = ['_id', 'name', 'email', 'password', 'role'];
+    const json2cscParser = new Parser({fields});
+    const csv = json2cscParser.parse(results);
+
+    return csv;
 
     // console.log("studntssssssssssss", students);
     // console.log("students: 1sssssssssss", students[0]);
@@ -165,28 +170,37 @@ exports.findStudentsInfo = async function (id){
 
 }
 
-exports.findAssignmentsInfo = async function (id) {
+
+// exports.getAssignmentsByCourseId = async function(id){
+//   const db = getDBReference();
+//   const collection = db.collection('assignments');
+//   const findcourse = await getCourseById(id);
+//
+//   if(findcourse == null){
+//     return null;
+//   } else {
+//     const result = await collection
+//       .find({'courseId.$id': new ObjectId(id)})
+// // add this code later, do not delete      .project({'studentId.$id': new ObjectId()})
+//       .toArray();
+//
+//     return result;
+//   }
+// }
+
+exports.getAssignmentsByCourseId = async function(id){
   const db = getDBReference();
-
-  const collectionst = db.collection('assignments');
+  const collection = db.collection('assignments');
   const findcourse = await getCourseById(id);
-  console.log("findcoursessssssssssss:", findcourse);
-
+  console.log("findcoursesssss ", findcourse);
   if(findcourse == null){
     return null;
   } else {
-    const assignments = await collectionst
+    console.log("goingggggggggggggggg");
+    const result = await collection
       .find({'courseId.$id': new ObjectId(id)})
-      .project({_id: new ObjectId()})
       .toArray();
-
-    var i;
-    var results = {};
-    for( i = 0; i < assignments.length; i++){
-      const user = await getUserById(assignments[i].studentId.oid);
-      results[i] = user;
-    }
-    return results;
+    console.log("results", result);
+    return result;
   }
-
 }
