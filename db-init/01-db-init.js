@@ -2,63 +2,63 @@
 var user1 = {
   "name": "Admin",
   "email": "admin@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 0
 }
 
 var user2 = {
   "name": "student1",
   "email": "st1@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 1
 }
 
 var user3 = {
   "name": "student3",
   "email": "st3@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 1
 }
 
 var user4 = {
   "name": "student4",
   "email": "st4@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 1
 }
 
 var user5 = {
   "name": "student5",
   "email": "st5@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 1
 }
 
 var user6 = {
   "name": "student6",
   "email": "st6@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 1
 }
 
 var user7 = {
   "name": "instructor1",
   "email": "in1@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 2
 }
 
 var user8 = {
   "name": "instructor2",
   "email": "in2@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 2
 }
 
 var user9 = {
   "name": "instructor3",
   "email": "in3@qq.com",
-  "password": "hunter2",
+  "password": "$2a$08$RWlZc3nrosptDfkOrnWMROjUcdmkw0J03yIKZuehzNzfT3mHU3.ma",
   "role": 2
 }
 

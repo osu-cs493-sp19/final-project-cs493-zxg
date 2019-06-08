@@ -13,9 +13,18 @@ const {
 } = require('../models/course');
 
 const {
+  StudentSchema,
   getStudentsPage,
-  getStudentsbyId
+  getStudentsbyId,
+  insertStudentbyId,
+  findStudentsInfo
 } = require('../models/student');
+
+const {
+  getAssignmentsPage
+} = require('../models/assignment')
+
+const { getUserByEmail } = require('../models/user');
 
 /*
  * Route to return a paginated list of courses.
@@ -33,17 +42,31 @@ router.get('/', async (req, res) => {
 });
 
 /*
- * Route to create a new business.
+ * Route to create a new course.
+ {
+    "subject": "Computer Science",
+    "number": "101",
+    "title": "COMPUTERS: APPS & IMPLICATIONS",
+    "term": "Fall 2019",
+    "instructorId": {
+        "$ref": "users",
+        "$id": " ",
+        "$db": ""
+    }
+}
  */
-router.post('/', async (req, res) => {
+router.post('/', requireAuthentication, async (req, res) => {
   if (validateAgainstSchema(req.body, CoursesSchema)) {
-    // const userid = await ;
-    const userid = 1;
-    if(userid == 1){
+    const userid = await getUserByEmail(req.user);
+    console.log(req.body.instructorId.$id);
+    if((userid._id == req.body.instructorId.$id && userid.role == 2) || userid.role == 0){
       try {
         const id = await insertNewCourse(req.body);
         res.status(201).send({
-          id: id
+          id: id,
+          links:{
+            course:`/courses/${id}`
+          }
         });
 
       } catch (err) {
@@ -88,55 +111,49 @@ router.post('/', async (req, res) => {
 /*
  * Update data for a specific Course.
  */
-  router.put('/:id',  async (req, res, next) => {
-    try {
-      const updatecourse = await updateCourseById(req.params.id, req.body);
-      console.log(updatecourse);
-      if (updatecourse) {
-        if (validateAgainstSchema(req.body, CoursesSchema)) {
-          // const userid = await ;
-          const userid = 1;
-          if(userid == 1){
-            try {
-              res.status(200).send({
-                updated: updatecourse
-              });
-            } catch (err) {
-              console.error(err);
-              res.status(500).send({
-                error: "Unable to update specified course.  Please try again later."
-              });
-            }
+
+  router.put('/:id', requireAuthentication,  async (req, res, next) => {
+    if (validateAgainstSchema(req.body, CoursesSchema)) {
+      const userid = await getUserByEmail(req.user);
+      if((userid._id == req.body.instructorId.$id && userid.role == 2) || userid.role == 0){
+        try {
+          const updatecourse = await updateCourseById(req.params.id, req.body);
+          console.log(updatecourse);
+          if (updatecourse) {
+            res.status(200).send({
+              updated: updatecourse
+            });
           } else {
-            res.status(403).send({
-              error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
+            res.status(404).send({
+              error: "Specified Course `id` not found."
             });
           }
-        } else {
-          res.status(400).send({
-            error: "The request body was either not present or did not contain a valid Course object."
+        } catch (err) {
+          console.error(err);
+          res.status(500).send({
+            error: "Unable to update specified course.  Please try again later."
           });
         }
       } else {
-        res.status(404).send({
-          error: "Specified Course `id` not found."
+        res.status(403).send({
+          error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
         });
       }
-    } catch (err) {
-      console.error(err);
-      res.status(500).send({
-        error: "Unable to fetch course.  Please try again later."
+    } else {
+      res.status(400).send({
+        error: "The request body was either not present or did not contain a valid Course object."
       });
     }
   });
 
+
 /*
  * Remove a specific Course from the database.
  */
- router.delete('/:id',  async (req, res, next) => {
+ router.delete('/:id', requireAuthentication,  async (req, res, next) => {
    // const userid = await ;
-   const userid =  1;
-   if(userid == 1 ){
+   const userid = await getUserByEmail(req.user);
+   if(userid._id == req.body.instructorId.$id || userid.role == 0){
      try {
        const deleteSuccessful = await deleteCourseById(req.params.id);
 
@@ -162,8 +179,8 @@ router.post('/', async (req, res) => {
  });
 
 //get all students course information
-    //sth error, or delete this function later
- router.get('/studentslist', async (req, res) => {
+
+ router.get('/students/list', async (req, res) => {
    try {
      const studentspage = await getStudentsPage(parseInt(req.query.page) || 1);
      res.status(200).send(studentspage);
@@ -178,42 +195,43 @@ router.post('/', async (req, res) => {
  /*
   * Fetch a list of the students enrolled in the Course.
   */
-  router.get('/:id/students',  async (req, res, next) => {
-    // const userid = await ;
-    const userid = 1;
-    if(useid = 1 ){
-      try {
-        const studentList = await getStudentsbyId(req.params.id);
-        console.log("T or F", studentList)
-        if (studentList){
-          res.status(200).send(studentList);
-        } else {
-          res.status(404).send({
-            error: "Specified Course `id` not found."
-          });
-        }
-      } catch (err) {
-        console.error(err);
-        res.status(500).send({
-          error: "Unable to fetch course.  Please try again later."
+router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
+  const user = await getUserByEmail(req.body.email);
+  if(userid.role == 2 || userid.role == 0){
+    try {
+      const studentList = await getStudentsbyId(req.params.id);
+      if (studentList){
+        res.status(200).send(studentList);
+      } else {
+        res.status(404).send({
+          error: "Specified Course `id` not found."
         });
       }
-    } else {
-      res.status(403).send({
-        error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({
+        error: "Unable to fetch course.  Please try again later."
       });
     }
-  });
+  } else {
+    res.status(403).send({
+      error: "The request was not made by an authenticated User satisfying the authorization criteria described above."
+    });
+  }
+});
 
 /*
  * Update enrollment for a Course
  */
+
+ // error here
  router.post('/:id/students',  async (req, res, next) => {
-   if(validateAgainstSchema(req.body, )){
-     // const userid = await ;
-     if(useid ){
+   if(validateAgainstSchema(req.body, StudentSchema)){
+     const userid = await getUserByEmail(req.user);
+     if(user._id == req.body.studentId.$id || userid.role == 0){
        try {
-         // const addStudentToCourse = await ;
+        const addStudentToCourse = await insertStudentbyId(req.params.id, req.body);
+        console.log(addStudentToCourse);
          if(addStudentToCourse){
            res.status(200).send(addStudentToCourse);
          } else {
@@ -243,10 +261,11 @@ router.post('/', async (req, res) => {
 * Fetch a CSV file containing list of the students enrolled in the Course.
 */
 router.get('/:id/roster',  async (req, res, next) => {
-  // const userid = await ;
-  if(useid ){
+  const userid = await getUserByEmail(req.user);
+  if(uuserid.role == 2 || userid.role == 0){
     try{
-      // const getRosterById = await ;
+      const getRosterById = await findStudentsInfo(req.params.id);
+    //  console.log("gettttttttttttttttttt", getRosterById);
       if (getRosterById) {
         res.status(200).send(getRosterById);
       } else {
@@ -266,6 +285,22 @@ router.get('/:id/roster',  async (req, res, next) => {
     });
   }
 });
+
+
+//get all course Assignments
+router.get('/assignments/list', async (req, res) => {
+  try {
+    const assignmentspage = await getAssignmentsPage(parseInt(req.query.page) || 1);
+    res.status(200).send(assignmentpage);
+  } catch (err) {
+  console.error(err);
+  res.status(500).send({
+    error: "Error fetching assignments list.  Please try again later."
+  });
+}
+});
+
+
 
 /*
  * Fetch a list of the Assignments for the Course.
