@@ -1,4 +1,6 @@
 
+const { Parser } = require('json2csv');
+
 const { ObjectId } = require('mongodb');
 
 const { extractValidFields } = require('../lib/validation');
@@ -113,12 +115,20 @@ exports.findStudentsInfo = async function (id){
       .toArray();
 
     var i;
-    var results = {};
+    var results = [];
     for( i = 0; i < students.length; i++){
       const user = await getUserById(students[i].studentId.oid);
       results[i] = user;
     }
-    return results;
+    //console.log(results);
+    //return results;
+
+    //jason to CSV
+    const fields = ['_id', 'name', 'email', 'password', 'role'];
+    const json2cscParser = new Parser({fields});
+    const csv = json2cscParser.parse(results);
+
+    return csv;
 
     // console.log("studntssssssssssss", students);
     // console.log("students: 1sssssssssss", students[0]);
