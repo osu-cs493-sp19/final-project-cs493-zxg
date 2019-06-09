@@ -9,13 +9,15 @@ const {
   getUsersPage,
   insertNewUser,
   getUserByEmail,
-  validateUser
+  validateUser,
+  getCoursesByStudentId,
+  getCoursesByInstructorId
 } = require('../models/user');
 
 /*
  * Get all users
  */
-router.get('/', async(req, res) => {
+router.get('/users/info', async(req, res) => {
   try {
     const userspage = await getUsersPage(parseInt(req.query.page) || 1);
     res.status(200).send(userspage);
@@ -37,7 +39,17 @@ router.get('/:id', requireAuthentication, async (req, res, next) => {
     try {
       const user = await getUserById(req.params.id);
       if (user) {
-        res.status(200).send(user);
+        if (userid.role == 1 || userid.role == 0){
+          const student = await getCoursesByStudentId(req.params.id);
+          Object.assign(user, student);
+          res.status(200).send( user);
+        }
+        else if (userid.role == 2 || userid.role == 0 ){
+          const instructor = await getCoursesByInstructorId(req.params.id);
+          Object.assign(user, instructor);
+          res.status(200).send( user);
+        }
+
       } else {
         res.status(404).send({
           error: "Specified User `id` not found."
