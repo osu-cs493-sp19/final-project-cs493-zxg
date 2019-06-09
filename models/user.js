@@ -172,7 +172,6 @@ exports.getInstructorbyCourseId = async function(id){
     const results = await collection
       .find({ _id: new ObjectId(id) })
       .toArray();
-    console.log("resultsssssssssssss", results);
     return results[0];
   }
 }

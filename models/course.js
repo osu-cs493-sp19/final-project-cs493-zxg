@@ -96,6 +96,7 @@ exports.updateCourseById = async function (id, course) {
     { _id: new ObjectId(id) },
     courseValues
   );
+
   //console.log(result);
   return result.matchedCount > 0;
 

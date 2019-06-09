@@ -103,7 +103,6 @@ exports.findStudentsInfo = async function (id){
 
   const collectionst = db.collection('students');
   const findcourse = await getCourseById(id);
-  console.log("findcoursessssssssssss:", findcourse);
 
   if(findcourse == null){
     return null;
@@ -113,17 +112,18 @@ exports.findStudentsInfo = async function (id){
       .project({'studentId.$id': new ObjectId()})
       .toArray();
 
+    console.log("studnetssssssssss", students);
     var i;
     var results = [];
     for( i = 0; i < students.length; i++){
       const user = await getUserById(students[i].studentId.oid);
       results[i] = user;
     }
-    //console.log(results);
+    console.log("sssssssssss", results);
     //return results;
 
     //jason to CSV
-    const fields = ['_id', 'name', 'email', 'password', 'role'];
+    const fields = ['_id', 'name', 'email', 'role'];
     const json2cscParser = new Parser({fields});
     const csv = json2cscParser.parse(results);
 

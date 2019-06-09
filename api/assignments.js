@@ -16,7 +16,11 @@ const {
   getDownloadStreamByFilename,
   getSubmissionsByAssignmentId
 } = require('../models/assignment');
-const { getUserByEmail } = require('../models/user');
+
+const {
+  getUserByEmail,
+  getInstructorbyCourseId
+ } = require('../models/user');
 /*
  * Create a new Assignment.
 http://localhost:8000/assignments
@@ -34,15 +38,30 @@ http://localhost:8000/assignments
 router.post('/', requireAuthentication,  async (req, res) => {
   if (validateAgainstSchema(req.body, AssignmentsSchema)) {
     const userid = await getUserByEmail(req.user);
+    console.log(userid);
     if(userid.role == 2 || userid.role == 0){
       try{
-        const id = await insertNewAssignment(req.body);
-        res.status(201).send({
-          id: id,
-          links: {
-            assignment: `/assignments/${id}`
-          }
-        });
+        const findinstructor = await getInstructorbyCourseId(req.body.courseId.$id);
+        const a = findinstructor.instructorId.oid;
+        const b = userid._id;
+
+        if( a.equals(b) == true || userid.role == 0 ){
+
+          const id = await insertNewAssignment(req.body);
+          res.status(201).send({
+            id: id,
+            links: {
+              assignment: `/assignments/${id}`
+            }
+          });
+
+        } else {
+          res.status(500).send({
+            error: "This instructor does not teach this course."
+          })
+        }
+
+
       } catch (err) {
         console.error(err);
         res.status(500).send({
@@ -94,23 +113,45 @@ router.get('/:id', async (req, res, next) => {
 	"due": "none"
 }
  */
- router.put('/:id',  async (req, res, next) => {
+ router.put('/:id',  requireAuthentication, async (req, res, next) => {
    if(validateAgainstSchema(req.body, AssignmentsSchema)){
      const userid = await getUserByEmail(req.user);
+
      if( userid.role == 2 || userid.role == 0 ){
        try {
-         const assignment = await updateAssignmentById(req.params.id, req.body);
-         if (assignment) {
-           res.status(200).send({
-             links:{
-               assignment: `/assignments/${req.params.id}`
-             }
-           });
+         const findassignment = await getAssignmentById(req.params.id);
+         const findinstructor = await getInstructorbyCourseId(findassignment.courseId.oid);
+         const a = findinstructor.instructorId.oid;
+         const b = userid._id;
+         const c = req.body.courseId.$id;
+         const d = findassignment.courseId.oid;
+         console.log("aaaaaa", a);
+         console.log("bbbbbbb", b);
+         console.log("ccccccccccc",  req.body.courseId.$id );
+         console.log("ddddddddd",  findassignment.courseId.oid)
+
+
+         if( (a.equals(b) == true || userid.role == 0) && c.equals(d) == true ){
+
+                 const assignment = await updateAssignmentById(req.params.id, req.body);
+                 if (assignment) {
+                   res.status(200).send({
+                     links:{
+                       assignment: `/assignments/${req.params.id}`
+                     }
+                   });
+                 } else {
+                   res.status(404).send({
+                     error: "Specified Assignment `id` not found."
+                   });
+                 }
          } else {
-           res.status(404).send({
-             error: "Specified Assignment `id` not found."
-           });
+           res.status(500).send({
+             error: "This instructor does not teach this course."
+           })
          }
+
+
        } catch (err) {
          console.error(err);
          res.status(500).send({
@@ -136,14 +177,26 @@ router.get('/:id', async (req, res, next) => {
     const userid = await getUserByEmail(req.user);
     if( userid.role == 2 || userid.role == 0 ){
       try {
-        const deleteSuccessful = await deleteAssignmentById(req.params.id);
-        if (deleteSuccessful) {
-          res.status(204).end();
-        } else {
-          res.status(404).send({
-            error: "Specified Assignment `id` not found."
-          });
+        const findassignment = await getAssignmentById(req.params.id);
+        const findinstructor = await getInstructorbyCourseId(findassignment.courseId.oid);
+        const a = findinstructor.instructorId.oid;
+        const b = userid._id;
+
+        if(a.equals(b) == true || userid.role == 0){
+                const deleteSuccessful = await deleteAssignmentById(req.params.id);
+                if (deleteSuccessful) {
+                  res.status(204).end();
+                } else {
+                  res.status(404).send({
+                    error: "Specified Assignment `id` not found."
+                  });
+                }
+        } else{
+          res.status(500).send({
+            error: "This instructor does not teach this course."
+          })
         }
+
       } catch (err) {
         console.error(err);
         res.status(500).send({

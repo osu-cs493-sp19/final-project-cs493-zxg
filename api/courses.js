@@ -127,16 +127,18 @@ router.post('/', requireAuthentication, async (req, res) => {
       if((userid._id == req.body.instructorId.$id && userid.role == 2) || userid.role == 0){
         try {
           const updatecourse = await updateCourseById(req.params.id, req.body);
-          console.log(updatecourse);
-          if (updatecourse) {
-            res.status(200).send({
-              updated: updatecourse
-            });
-          } else {
-            res.status(404).send({
-              error: "Specified Course `id` not found."
-            });
-          }
+          const originalcourse = await getCourseById(req.params.id);
+
+              if (updatecourse) {
+                res.status(200).send({
+                  updated: updatecourse
+                });
+              } else {
+                res.status(404).send({
+                  error: "Specified Course `id` not found."
+                });
+              }
+
         } catch (err) {
           console.error(err);
           res.status(500).send({
@@ -223,14 +225,33 @@ router.post('/', requireAuthentication, async (req, res) => {
  /*
   * Fetch a list of the students enrolled in the Course.
   */
+  //老师教的或admin
+  //
+  // {
+  //
+  //     "studentId": {
+  //         "$ref": "users",
+  //         "$id": "5cfc4940dfe6941745f43ebas",
+  //         "$db": ""
+  //     },
+  //     "courseId": {
+  //         "$ref": "courses",
+  //         "$id": "5cfc4940dfe6941745f43ec3",
+  //         "$db": ""
+  //     }
+  // }
+
+
 router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
   const userid = await getUserByEmail(req.user);
   if(userid.role == 2 || userid.role == 0){
     try {
 
       const findinstructor = await getInstructorbyCourseId(req.params.id);
+      const a = findinstructor.instructorId.oid;
+      const b = userid._id;
 
-      if( findinstructor.instructorId.oid.equals(userid._id) == true || userid.role == 0 ){
+      if( a == b || userid.role == 0 ){
         const studentList = await getStudentsbyId(req.params.id);
         if (studentList){
           res.status(200).send(studentList);
@@ -244,7 +265,6 @@ router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
           res.status(500).send({
             error: "This instructor does not teach this course."
           })
-
       }
 
     } catch (err) {
@@ -264,21 +284,48 @@ router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
  * Update enrollment for a Course
  */
 
- // error here
+ //老师教的或admin
+ //
+ // {
+ //
+ //     "studentId": {
+ //         "$ref": "users",
+ //         "$id": "5cfc4940dfe6941745f43ebas",
+ //         "$db": ""
+ //     },
+ //     "courseId": {
+ //         "$ref": "courses",
+ //         "$id": "5cfc4940dfe6941745f43ec3",
+ //         "$db": ""
+ //     }
+ // }
+
  router.post('/:id/students', requireAuthentication,  async (req, res, next) => {
    if(validateAgainstSchema(req.body, StudentSchema)){
      const userid = await getUserByEmail(req.user);
-     if(user._id == req.body.studentId.$id || userid.role == 0){
+     if(userid.role == 2 || userid.role == 0){
        try {
-        const addStudentToCourse = await insertStudentbyId(req.params.id, req.body);
-        console.log(addStudentToCourse);
-         if(addStudentToCourse){
-           res.status(200).send(addStudentToCourse);
-         } else {
-           res.status(404).send({
-             error: "Specified Course `id` not found."
-           });
-         }
+
+         const findinstructor = await getInstructorbyCourseId(req.params.id);
+         const a = findinstructor.instructorId.oid;
+         const b = userid._id;
+
+         if( a == b || userid.role == 0 ){
+            const addStudentToCourse = await insertStudentbyId(req.params.id, req.body);
+            console.log(addStudentToCourse);
+             if(addStudentToCourse){
+               res.status(200).send(addStudentToCourse);
+             } else {
+               res.status(404).send({
+                 error: "Specified Course `id` not found."
+               });
+             }
+          } else {
+            res.status(500).send({
+              error: "This instructor does not teach this course."
+            })
+          }
+
        } catch (err) {
          console.error(err);
          res.status(500).send({
@@ -304,15 +351,28 @@ router.get('/:id/roster', requireAuthentication,  async (req, res, next) => {
   const userid = await getUserByEmail(req.user);
   if( userid.role == 2 || userid.role == 0 ){
     try{
-      const getRosterById = await findStudentsInfo(req.params.id);
-    //  console.log("gettttttttttttttttttt", getRosterById);
-      if (getRosterById) {
-        res.status(200).send(getRosterById);
+
+      const findinstructor = await getInstructorbyCourseId(req.params.id);
+      const a = findinstructor.instructorId.oid;
+      const b = userid._id;
+
+      if( a == b || userid.role == 0 ){
+            const getRosterById = await findStudentsInfo(req.params.id);
+          //  console.log("gettttttttttttttttttt", getRosterById);
+            if (getRosterById) {
+              res.status(200).send(getRosterById);
+            } else {
+              res.status(404).send({
+                error: "Specified Course `id` not found."
+              });
+            }
+
       } else {
-        res.status(404).send({
-          error: "Specified Course `id` not found."
-        });
+        res.status(500).send({
+          error: "This instructor does not teach this course."
+        })
       }
+
     } catch (err) {
       console.error(err);
       res.status(500).send({
