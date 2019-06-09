@@ -4,6 +4,12 @@ const { ObjectId } = require('mongodb');
 const { extractValidFields } = require('../lib/validation');
 const { getDBReference } = require('../lib/mongo');
 
+const {
+
+  getCourseById
+
+} = require('../models/course');
+
 /*
  * Schema describing required/optional fields of a course object.
  */

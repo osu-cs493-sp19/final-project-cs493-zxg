@@ -4,6 +4,9 @@ const bcrypt = require('bcryptjs');
 const { extractValidFields } = require('../lib/validation');
 const { getDBReference } = require('../lib/mongo');
 
+const {
+  getCourseById,
+} = require('../models/course');
 
 const UserSchema = {
   name: { required: true },
@@ -95,3 +98,81 @@ exports.validateUser = async function (id, password) {
   const authenticated = user && await bcrypt.compare(password, user.password);
   return authenticated;
 };
+
+exports.getCoursesByStudentId = async function(id){
+  const db = getDBReference();
+  const collection = db.collection('students');
+  const finduser = await getUserById(id);
+  if (finduser == null) {
+    return null;
+  } else {
+    const students = await collection
+      .find({'studentId.$id': new ObjectId(id)})
+      .project({'courseId.$id': new ObjectId()})
+      .toArray();
+
+    console.log("studentssssssssssss",students);
+
+    var i;
+    var results = {};
+    for( i = 0; i < students.length; i++){
+      const course = students[i].courseId.oid;
+      results[i] = course;
+    }
+    console.log("coursesssssssssssss", results);
+
+    // for( i = 0; i < students.length; i++){
+    //   const course = await getCourseById(students[i].courseId.oid);
+    //   results[i] = course;
+    // }
+
+
+
+
+    return results;
+  }
+
+}
+
+
+exports.getCoursesByInstructorId = async function(id){
+  const db = getDBReference();
+  const collection = db.collection('courses');
+  const finduser = await getUserById(id);
+  if (finduser == null) {
+    return null;
+  } else {
+    const instructors = await collection
+      .find({'instructorId.$id': new ObjectId(id)})
+      .project({_id: new ObjectId()})
+      .toArray();
+
+    return instructors;
+    //
+    // var i;
+    // var results = [];
+    // for( i = 0; i < students.length; i++){
+    //   const course = await getCourseById(students.[i].courseId.oid);
+    //   results[i] = course;
+    // }
+    // console.log("coursesssssssssssss", results);
+    // return results;
+  }
+
+}
+
+
+exports.getInstructorbyCourseId = async function(id){
+  const db = getDBReference();
+  const collection = db.collection('courses');
+  const findcourse = await getCourseById(id);
+  if (findcourse == null) {
+    return null;
+  } else {
+    const results = await collection
+      .find({ _id: new ObjectId(id) })
+      .toArray();
+    console.log("resultsssssssssssss", results);
+    return results[0];
+  }
+}

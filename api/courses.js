@@ -1,4 +1,8 @@
 
+
+const { ObjectId } = require('mongodb');
+const { getDBReference } = require('../lib/mongo');
+
 const router = require('express').Router();
 
 const { validateAgainstSchema } = require('../lib/validation');
@@ -10,7 +14,12 @@ const {
   updateCourseById,
   insertNewCourse,
   deleteCourseById
+  //getInstructorbyCourseId
 } = require('../models/course');
+
+const {
+  getInstructorbyCourseId
+} = require('../models/user');
 
 const {
   StudentSchema,
@@ -60,7 +69,7 @@ router.post('/', requireAuthentication, async (req, res) => {
   if (validateAgainstSchema(req.body, CoursesSchema)) {
     const userid = await getUserByEmail(req.user);
     console.log(req.body.instructorId.$id);
-    if((userid._id == req.body.instructorId.$id && userid.role == 2) || userid.role == 0){
+    if(userid.role == 0){
       try {
         const id = await insertNewCourse(req.body);
         res.status(201).send({
@@ -153,7 +162,7 @@ router.post('/', requireAuthentication, async (req, res) => {
  router.delete('/:id', requireAuthentication,  async (req, res, next) => {
    // const userid = await ;
    const userid = await getUserByEmail(req.user);
-   if(userid._id == req.body.instructorId.$id || userid.role == 0){
+   if(userid.role == 0){
      try {
        const deleteSuccessful = await deleteCourseById(req.params.id);
 
@@ -192,6 +201,25 @@ router.post('/', requireAuthentication, async (req, res) => {
  }
 });
 
+
+// required function
+// function getInstructorbyCourseId(id){
+//   const db = getDBReference();
+//   const collection = db.collection('courses');
+//   const findcourse = getCourseById(id);
+//   if (findcourse == null) {
+//     return null;
+//   } else {
+//     const results = collection
+//       .find({ _id: new ObjectId(id) })
+//       .toArray();
+//     console.log("resultsssssssssssss", results);
+//     return results[0];
+//   }
+// }
+
+
+
  /*
   * Fetch a list of the students enrolled in the Course.
   */
@@ -199,14 +227,26 @@ router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
   const userid = await getUserByEmail(req.user);
   if(userid.role == 2 || userid.role == 0){
     try {
-      const studentList = await getStudentsbyId(req.params.id);
-      if (studentList){
-        res.status(200).send(studentList);
+
+      const findinstructor = await getInstructorbyCourseId(req.params.id);
+
+      if( findinstructor.instructorId.oid.equals(userid._id) == true || userid.role == 0 ){
+        const studentList = await getStudentsbyId(req.params.id);
+        if (studentList){
+          res.status(200).send(studentList);
+        } else {
+          res.status(404).send({
+            error: "Specified Course `id` not found."
+          });
+        }
       } else {
-        res.status(404).send({
-          error: "Specified Course `id` not found."
-        });
+
+          res.status(500).send({
+            error: "This instructor does not teach this course."
+          })
+
       }
+
     } catch (err) {
       console.error(err);
       res.status(500).send({
