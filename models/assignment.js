@@ -128,6 +128,7 @@ exports.saveSubmissionFile = function (id, submission) {
     const bucket = new GridFSBucket(db, { bucketName: 'submissions' });
 
     const metadata = {
+      timestamp: new Date().toString(),
       contentType: submission.contentType,
       studentId: submission.studentId,
       assignmentId: id,
