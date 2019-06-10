@@ -10,8 +10,8 @@ const {
   insertNewUser,
   getUserByEmail,
   validateUser,
-  getCoursesByStudentId,
-  getCoursesByInstructorId
+  getStudentDetailById,
+  getInstructorDetailById
 } = require('../models/user');
 
 /*
@@ -40,14 +40,14 @@ router.get('/:id', requireAuthentication, async (req, res, next) => {
       const user = await getUserById(req.params.id);
       if (user) {
         if (userid.role == 1 || userid.role == 0){
-          const student = await getCoursesByStudentId(req.params.id);
-          Object.assign(user, student);
-          res.status(200).send( user);
+          const student = await getStudentDetailById(req.params.id);
+          //Object.assign(user, student);
+          res.status(200).send(student);
         }
         else if (userid.role == 2 || userid.role == 0 ){
-          const instructor = await getCoursesByInstructorId(req.params.id);
-          Object.assign(user, instructor);
-          res.status(200).send( user);
+          const instructor = await getInstructorDetailById(req.params.id);
+          //Object.assign(user, instructor);
+          res.status(200).send(instructor);
         }
 
       } else {

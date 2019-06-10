@@ -13,7 +13,8 @@ const {
   getCourseById,
   updateCourseById,
   insertNewCourse,
-  deleteCourseById
+  deleteCourseById,
+  getCourseDetailById
   //getInstructorbyCourseId
 } = require('../models/course');
 

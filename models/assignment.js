@@ -170,3 +170,60 @@ async function getSubmissionsByAssignmentId(id) {
   }
 }
 exports.getSubmissionsByAssignmentId = getSubmissionsByAssignmentId;
+
+async function getAssignmentDetailsById(id) {
+  const assignment = await getAssignmentById(id);
+  if (assignment) {
+    assignment.submissions = await getSubmissionsByAssignmentId(id);
+  }
+  return assignment;
+}
+exports.getAssignmentDetailsById = getAssignmentDetailsById;
+
+async function getAssignmentsByCourseId(id) {
+ const db = getDBReference();
+ const collection = db.collection('assignments');
+ if (!ObjectId.isValid(id)) {
+   return [];
+ } else {
+   const results = await collection
+     .find({ 'courseId.$id': new ObjectId(id) })
+     .toArray();
+   return results[0];
+ }
+}
+exports.getAssignmentsByCourseId = getAssignmentsByCourseId;
+
+exports.getCoursebyAssignmentId = async function (id) {
+  const assignment = await getAssignmentById(id);
+  //console.log(assignment);
+  if (assignment) {
+    const courseId = assignment.courseId.oid;
+    //onsole.log("==courseId: ",courseId);
+    const db = getDBReference();
+    const collection = db.collection('courses');
+    if (!ObjectId.isValid(courseId)) {
+      return null;
+    } else {
+      const results = await collection
+        .find({ _id: new ObjectId(courseId) })
+        .toArray();
+      return results[0];
+    }
+  }
+}
+
+exports.checkStudentId = async function (cid, sid) {
+  const db = getDBReference();
+  const collection = db.collection('students');
+  const result = await collection
+    .find({
+      $and: [
+        {'studentId.$id': new ObjectId(sid)},
+        {'courseId.$id': new ObjectId(cid)}
+      ]
+    })
+    .toArray();
+    console.log(result[0]);
+  return result[0];
+}
