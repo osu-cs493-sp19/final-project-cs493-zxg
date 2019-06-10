@@ -4,11 +4,8 @@ const { ObjectId } = require('mongodb');
 const { extractValidFields } = require('../lib/validation');
 const { getDBReference } = require('../lib/mongo');
 
-const {
-
-  getCourseById
-
-} = require('../models/course');
+const { getAssignmentsByCourseId } = require('../models/assignment');
+const { getStudentsByCourseId } = require('../models/student');
 
 /*
  * Schema describing required/optional fields of a course object.
@@ -61,18 +58,20 @@ exports.getCoursesPage = async function (page) {
   };
 };
 
-exports.getCourseById = async function (id) {
+async function getCourseById(id) {
   const db = getDBReference();
   const collection = db.collection('courses');
   if (!ObjectId.isValid(id)) {
     return null;
   } else {
+    //console.log("==courseId: ", id);
     const results = await collection
       .find({ _id: new ObjectId(id) })
       .toArray();
     return results[0];
   }
 }
+exports.getCourseById = getCourseById;
 
 exports.insertNewCourse= async function (course) {
   const db = getDBReference();
@@ -112,4 +111,13 @@ exports.deleteCourseById = async function (id) {
   //console.log(result);
   return result.deletedCount > 0;
 
+}
+
+exports.getCourseDetailById = async function (id) {
+  const course = await getCourseById(id);
+  if (course) {
+    course.assignments = await getAssignmentsByCourseId(id);
+    course.students = await getStudentsByCourseId(id);
+  }
+  return course;
 }

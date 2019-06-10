@@ -14,13 +14,17 @@ const {
   deleteAssignmentById,
   saveSubmissionFile,
   getDownloadStreamByFilename,
-  getSubmissionsByAssignmentId
+  getSubmissionsByAssignmentId,
+  getAssignmentDetailsById,
+  getCoursebyAssignmentId,
+  checkStudentId
 } = require('../models/assignment');
 
 const {
   getUserByEmail,
   getInstructorbyCourseId
  } = require('../models/user');
+
 /*
  * Create a new Assignment.
 http://localhost:8000/assignments
@@ -85,7 +89,7 @@ router.post('/', requireAuthentication,  async (req, res) => {
  */
 router.get('/:id', async (req, res, next) => {
   try {
-    const assignment = await getAssignmentById(req.params.id);
+    const assignment = await getAssignmentDetailsById(req.params.id);
     if (assignment) {
       res.status(200).send(assignment);
     } else {
@@ -215,7 +219,10 @@ router.get('/:id', async (req, res, next) => {
  */
  router.get('/:id/submissions',requireAuthentication,  async (req, res, next) => {
    const userid = await getUserByEmail(req.user);
-   if( userid.role == 2 || userid.role == 0 ){
+   const course = await getCoursebyAssignmentId(req.params.id);
+   //console.log(course.instructorId.oid);
+   //console.log("userid: ",userid._id);
+   if( userid._id.equals( course.instructorId.oid ) == true || userid.role == 0 ){
      try {
        const assignment = await getAssignmentById(req.params.id);
        if (assignment) {
@@ -279,7 +286,10 @@ router.post('/:id/submissions',requireAuthentication, upload.single('submission'
   console.log("== req.body:", req.body);
   if (req.file && req.body && req.body.studentId) {
     const userid = await getUserByEmail(req.user);
-    if( userid._id==req.body.studentId ){
+    const course = await getCoursebyAssignmentId(req.params.id);
+    //console.log(course._id);
+    const checkStudent = await checkStudentId(course._id, userid._id);
+    if( checkStudent && userid._id==req.body.studentId ){
       try {
         const submission = {
           path: req.file.path,

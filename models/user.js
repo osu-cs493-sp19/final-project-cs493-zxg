@@ -72,6 +72,24 @@ async function getUserById(id, includePassword) {
 };
 exports.getUserById = getUserById;
 
+async function getStudentDetailById(id) {
+  const student = await getUserById(id);
+  if (student) {
+    student.courses = await getCoursesByStudentId(id);
+  }
+  return student;
+}
+exports.getStudentDetailById = getStudentDetailById;
+
+async function getInstructorDetailById(id) {
+  const instructor = await getUserById(id);
+  if (instructor) {
+    instructor.courses = await getCoursesByInstructorId(id);
+  }
+  return instructor;
+}
+exports.getInstructorDetailById = getInstructorDetailById;
+
 exports.insertNewUser = async function (user) {
   const userToInsert = extractValidFields(user, UserSchema);
   const db = getDBReference();
@@ -99,68 +117,36 @@ exports.validateUser = async function (id, password) {
   return authenticated;
 };
 
-exports.getCoursesByStudentId = async function(id){
+async function getCoursesByStudentId(id) {
   const db = getDBReference();
   const collection = db.collection('students');
-  const finduser = await getUserById(id);
-  if (finduser == null) {
-    return null;
+  if (!ObjectId.isValid(id)){
+    return [];
   } else {
-    const students = await collection
-      .find({'studentId.$id': new ObjectId(id)})
-      .project({'courseId.$id': new ObjectId()})
+    const results = await collection
+      .find({ 'studentId.$id': new ObjectId(id) })
+      .project({ studentId:0, _id:0})
       .toArray();
-
-    console.log("studentssssssssssss",students);
-
-    var i;
-    var results = {};
-    for( i = 0; i < students.length; i++){
-      const course = students[i].courseId.oid;
-      results[i] = course;
-    }
-    console.log("coursesssssssssssss", results);
-
-    // for( i = 0; i < students.length; i++){
-    //   const course = await getCourseById(students[i].courseId.oid);
-    //   results[i] = course;
-    // }
-
-
-
-
-    return results;
+    return results[0];
   }
-
 }
+exports.getCoursesByStudentId = getCoursesByStudentId;
 
-
-exports.getCoursesByInstructorId = async function(id){
+async function getCoursesByInstructorId(id){
   const db = getDBReference();
   const collection = db.collection('courses');
-  const finduser = await getUserById(id);
-  if (finduser == null) {
-    return null;
+  if (!ObjectId.isValid(id)) {
+    return [];
   } else {
     const instructors = await collection
       .find({'instructorId.$id': new ObjectId(id)})
-      .project({_id: new ObjectId()})
+      //.project({_id: new ObjectId()})
       .toArray();
 
     return instructors;
-    //
-    // var i;
-    // var results = [];
-    // for( i = 0; i < students.length; i++){
-    //   const course = await getCourseById(students.[i].courseId.oid);
-    //   results[i] = course;
-    // }
-    // console.log("coursesssssssssssss", results);
-    // return results;
   }
-
 }
-
+exports.getCoursesByInstructorId = getCoursesByInstructorId;
 
 exports.getInstructorbyCourseId = async function(id){
   const db = getDBReference();

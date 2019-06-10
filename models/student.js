@@ -204,3 +204,17 @@ exports.getAssignmentsByCourseId = async function(id){
     return result;
   }
 }
+
+exports.getStudentsByCourseId = async function(id) {
+  const db = getDBReference();
+  const collection = db.collection('students');
+  if (!ObjectId.isValid(id)){
+    return [];
+  } else {
+    const results = await collection
+      .find({ 'courseId.$id': new ObjectId(id) })
+      .project({ courseId:0, _id:0})
+      .toArray();
+    return results[0];
+  }
+}
