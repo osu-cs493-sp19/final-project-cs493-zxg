@@ -127,7 +127,7 @@ async function getCoursesByStudentId(id) {
       .find({ 'studentId.$id': new ObjectId(id) })
       .project({ studentId:0, _id:0})
       .toArray();
-    return results[0];
+    return results;
   }
 }
 exports.getCoursesByStudentId = getCoursesByStudentId;
@@ -140,7 +140,7 @@ async function getCoursesByInstructorId(id){
   } else {
     const instructors = await collection
       .find({'instructorId.$id': new ObjectId(id)})
-      //.project({_id: new ObjectId()})
+      .project({_id: 1})
       .toArray();
 
     return instructors;
