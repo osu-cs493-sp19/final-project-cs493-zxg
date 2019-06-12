@@ -58,7 +58,7 @@ exports.getCoursesPage = async function (page) {
   };
 };
 
-async function getCourseById(id) {
+exports.getCourseById = async function (id) {
   const db = getDBReference();
   const collection = db.collection('courses');
   if (!ObjectId.isValid(id)) {
@@ -66,12 +66,16 @@ async function getCourseById(id) {
   } else {
     //console.log("==courseId: ", id);
     const results = await collection
-      .find({ _id: new ObjectId(id) })
+      .find({
+        $or: [
+        { _id: new ObjectId(id) },
+        { _id: id }
+        ]
+      })
       .toArray();
     return results[0];
   }
-}
-exports.getCourseById = getCourseById;
+};
 
 exports.insertNewCourse= async function (course) {
   const db = getDBReference();
@@ -99,7 +103,7 @@ exports.updateCourseById = async function (id, course) {
   //console.log(result);
   return result.matchedCount > 0;
 
-}
+};
 
 exports.deleteCourseById = async function (id) {
 
@@ -111,13 +115,13 @@ exports.deleteCourseById = async function (id) {
   //console.log(result);
   return result.deletedCount > 0;
 
-}
+};
 
-exports.getCourseDetailById = async function (id) {
+/*exports.getCourseDetailById = async function (id) {
   const course = await getCourseById(id);
   if (course) {
     course.assignments = await getAssignmentsByCourseId(id);
     course.students = await getStudentsByCourseId(id);
   }
   return course;
-}
+}*/

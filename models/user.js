@@ -69,7 +69,7 @@ async function getUserById(id, includePassword) {
       .toArray();
     return results[0];
   }
-};
+}
 exports.getUserById = getUserById;
 
 async function getStudentDetailById(id) {
@@ -124,7 +124,12 @@ async function getCoursesByStudentId(id) {
     return [];
   } else {
     const results = await collection
-      .find({ 'studentId.$id': new ObjectId(id) })
+      .find({
+        $or: [
+        { 'studentId.$id': new ObjectId(id) },
+        { 'studentId.$id': id }
+        ]
+      })
       .project({ studentId:0, _id:0})
       .toArray();
     return results;
@@ -139,7 +144,12 @@ async function getCoursesByInstructorId(id){
     return [];
   } else {
     const instructors = await collection
-      .find({'instructorId.$id': new ObjectId(id)})
+      .find({
+        $or: [
+        {'instructorId.$id': new ObjectId(id)},
+        {'instructorId.$id': id}
+        ]
+      })
       .project({_id: 1})
       .toArray();
 

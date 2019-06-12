@@ -14,7 +14,7 @@ const {
   updateCourseById,
   insertNewCourse,
   deleteCourseById,
-  getCourseDetailById
+  //getCourseDetailById
   //getInstructorbyCourseId
 } = require('../models/course');
 
@@ -252,7 +252,7 @@ router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
       const a = findinstructor.instructorId.oid;
       const b = userid._id;
 
-      if( a.equals(b) == true || userid.role == 0 ){
+      if( a == b || userid.role == 0 ){
         const studentList = await getStudentsbyId(req.params.id);
         if (studentList){
           res.status(200).send(studentList);
@@ -311,7 +311,7 @@ router.get('/:id/students', requireAuthentication,  async (req, res, next) => {
          const a = findinstructor.instructorId.oid;
          const b = userid._id;
 
-         if( a.equals(b) == true || userid.role == 0 ){
+         if( a == b|| userid.role == 0 ){
             const addStudentToCourse = await insertStudentbyId(req.params.id, req.body);
             console.log(addStudentToCourse);
              if(addStudentToCourse){
@@ -357,7 +357,7 @@ router.get('/:id/roster', requireAuthentication,  async (req, res, next) => {
       const a = findinstructor.instructorId.oid;
       const b = userid._id;
 
-      if( a.equals(b) == true || userid.role == 0 ){
+      if( a == b || userid.role == 0 ){
             const getRosterById = await findStudentsInfo(req.params.id);
           //  console.log("gettttttttttttttttttt", getRosterById);
             if (getRosterById) {

@@ -8,7 +8,7 @@ const { getDBReference } = require('../lib/mongo');
 const {
   CoursesSchema,
   getCoursesPage,
-  getCourseById,
+  //getCourseById,
   updateCourseById,
   insertNewCourse,
   deleteCourseById
@@ -16,7 +16,7 @@ const {
 
 const {
   UserSchema,
-  getUserById,
+  //getUserById,
   getUsersPage,
   insertNewUser
 } = require('../models/user');
@@ -26,6 +26,34 @@ const StudentSchema = {
   courseId: { required: true },
 };
 exports.StudentSchema = StudentSchema;
+
+async function getCourseById(id) {
+  const db = getDBReference();
+  const collection = db.collection('courses');
+  if (!ObjectId.isValid(id)) {
+    return null;
+  } else {
+    const results = await collection
+      .find({ _id: new ObjectId(id) })
+      .toArray();
+    return results[0];
+  }
+};
+
+async function getUserById(id, includePassword) {
+  const db = getDBReference();
+  const collection = db.collection('users');
+  if (!ObjectId.isValid(id)) {
+    return null;
+  } else {
+    const projection = includePassword ? {} : { password: 0 };
+    const results = await collection
+      .find({ _id: new ObjectId(id) })
+      .project(projection)
+      .toArray();
+    return results[0];
+  }
+};
 
 exports.getStudentsPage = async function (page) {
   const db = getDBReference();
@@ -76,7 +104,12 @@ exports.getStudentsbyId = async function(id){
     return null;
   } else {
     const result = await collection
-      .find({'courseId.$id': new ObjectId(id)})
+      .find({
+        $or:[
+        {'courseId.$id': new ObjectId(id)},
+        {'courseId.$id': id}
+        ]
+      })
 // add this code later, do not delete      .project({'studentId.$id': new ObjectId()})
       .toArray();
 
@@ -108,7 +141,12 @@ exports.findStudentsInfo = async function (id){
     return null;
   } else {
     const students = await collectionst
-      .find({'courseId.$id': new ObjectId(id)})
+      .find({
+        $or:[
+        {'courseId.$id': new ObjectId(id)},
+        {'courseId.$id': id}
+        ]
+      })
       .project({'studentId.$id': new ObjectId()})
       .toArray();
 
@@ -198,7 +236,12 @@ exports.getAssignmentsByCourseId = async function(id){
   } else {
     console.log("goingggggggggggggggg");
     const result = await collection
-      .find({'courseId.$id': new ObjectId(id)})
+    .find({
+      $or:[
+      {'courseId.$id': new ObjectId(id)},
+      {'courseId.$id': id}
+      ]
+    })
       .toArray();
     console.log("results", result);
     return result;
@@ -212,7 +255,12 @@ exports.getStudentsByCourseId = async function(id) {
     return [];
   } else {
     const results = await collection
-      .find({ 'courseId.$id': new ObjectId(id) })
+    .find({
+      $or:[
+      {'courseId.$id': new ObjectId(id)},
+      {'courseId.$id': id}
+      ]
+    })
       .project({ courseId:0, _id:0})
       .toArray();
     return results[0];
